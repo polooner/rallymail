@@ -79,14 +79,15 @@ export default function Page() {
   });
 
   async function onSubmit(data: ProfileFormValues) {
-    const res = fetch('/api/create', {
+    const res = await fetch('/api/create', {
       method: 'POST',
       body: JSON.stringify(data),
+    }).then(async (res) => {
+      const json = await res.json();
+      if (json.status === 201) {
+        toast.success('Template created!');
+      }
     });
-    console.log((await res).status);
-    // if () {
-    //   toast.success('Template created!');
-    // }
   }
   return (
     <Form {...form}>
