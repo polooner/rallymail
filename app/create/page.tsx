@@ -72,6 +72,8 @@ export default function Page() {
   // if (!user) {
   //   redirect('/login');
   // }
+  const [url, setUrl] = useState<string | null>(null);
+
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues,
@@ -86,9 +88,18 @@ export default function Page() {
       const json = await res.json();
       if (json.status === 201) {
         toast.success('Template created!');
+        console.log(json);
+        setUrl(json.data);
       }
     });
   }
+  //TODO: hardcoded website url
+  const handleCopy = () => {
+    navigator.clipboard.writeText(
+      `https://rallymail.vercel.app/template/${url}`
+    );
+    toast.success('Copied to clipboard.');
+  };
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='my-10 space-y-8'>
@@ -170,6 +181,14 @@ export default function Page() {
 
         <Button type='submit'>Create template</Button>
       </form>
+      {url ? (
+        <>
+          <Button onClick={handleCopy}>Copy to clipboard</Button>
+          <a target='_blank' href={`/template/${url}`}>
+            View your form here &rarr;
+          </a>
+        </>
+      ) : null}
     </Form>
   );
 }

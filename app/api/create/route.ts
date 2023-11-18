@@ -6,7 +6,11 @@ export async function POST(req: Request) {
   const cookieStore = cookies();
   const json = await req.json();
   const supabase = createClient(cookieStore);
-  const { error, status, data } = await supabase.from('campaigns').insert(json);
+  const { error, status, data } = await supabase
+    .from('campaigns')
+    .insert(json)
+    .select()
+    .single();
 
-  return NextResponse.json({ message: error, status });
+  return NextResponse.json({ message: error, status, data: data.id });
 }
