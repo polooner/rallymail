@@ -25,6 +25,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import toast from 'react-hot-toast';
 
+import { useEffect, useState } from 'react';
+
+import { redirect } from 'next/navigation';
+
 const profileFormSchema = z.object({
   email: z
     .string()
@@ -50,6 +54,24 @@ const defaultValues: Partial<ProfileFormValues> = {
 };
 
 export default function Page() {
+  // TODO: redirect if no user detected
+  // FIXME: no user fetched
+
+  // const [user, setUser] = useState<any>();
+  // useEffect(() => {
+  //   const checkIsUser = async () => {
+  //     const res = await fetch('/api/get-user', { method: 'GET' });
+  //     const data = res.status;
+  //     setUser(data);
+  //     console.log(user);
+  //   };
+  //   checkIsUser();
+  // }, []);
+
+  // console.log(user);
+  // if (!user) {
+  //   redirect('/login');
+  // }
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues,
