@@ -19,7 +19,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
       <h2>{data.email}</h2>
       <p>Title: </p>
       <h1 className='text-4xl font-bold'>{data.title}</h1>
-      <h2 className='p-6 rounded-lg bg-neutral-100 '>{data.content}</h2>
+      <h2 className='p-6 rounded-lg bg-neutral-100 text-'>{data.content}</h2>
     </div>
   );
 }

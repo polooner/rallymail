@@ -7,8 +7,6 @@ export async function POST(req: Request) {
   const json = await req.json();
   const supabase = createClient(cookieStore);
   const { error, status, data } = await supabase.from('campaigns').insert(json);
-  console.log(status);
-  console.log(error);
 
-  return NextResponse.json({ status });
+  return NextResponse.json({ message: status });
 }
