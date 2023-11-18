@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { headers, cookies } from 'next/headers';
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
@@ -19,7 +18,7 @@ export default function Login({
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${origin}/auth/callback`,
+        emailRedirectTo: `rallymail.vercel.app/auth/callback`,
       },
     });
 
