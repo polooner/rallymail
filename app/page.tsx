@@ -34,7 +34,7 @@ export default function Index() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    router.push(`/create?email=${values.email}`);
+    router.push(`/login`);
   }
 
   return (
