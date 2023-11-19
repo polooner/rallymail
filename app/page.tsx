@@ -123,7 +123,14 @@ export default function Index() {
           </div>
         </div>
         <div className='w-full md:w-1/2'>
-          <div className='h-64 bg-gray-300'></div>
+          <video
+            src='/rallymail.mov'
+            autoPlay
+            muted
+            controls
+            playsInline
+            className='bg-gray-300 h-120'
+          ></video>
         </div>
       </div>
     </div>
