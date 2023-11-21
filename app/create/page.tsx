@@ -57,21 +57,21 @@ export default function Page() {
   // TODO: redirect if no user detected
   // FIXME: no user fetched
 
-  // const [user, setUser] = useState<any>();
-  // useEffect(() => {
-  //   const checkIsUser = async () => {
-  //     const res = await fetch('/api/get-user', { method: 'GET' });
-  //     const data = res.status;
-  //     setUser(data);
-  //     console.log(user);
-  //   };
-  //   checkIsUser();
-  // }, []);
+  const [user, setUser] = useState<any>();
+  useEffect(() => {
+    const checkIsUser = async () => {
+      const res = await fetch('/api/get-user', { method: 'GET' });
+      const data = res.status;
+      setUser(data);
+      console.log(user);
+    };
+    checkIsUser();
+  }, []);
 
-  // console.log(user);
-  // if (!user) {
-  //   redirect('/login');
-  // }
+  console.log(user);
+  if (!user) {
+    redirect('/login');
+  }
   const [url, setUrl] = useState<string | null>(null);
 
   const form = useForm<ProfileFormValues>({
