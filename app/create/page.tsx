@@ -15,19 +15,15 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import toast from 'react-hot-toast';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { redirect } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+
+import axios from 'axios';
 
 const profileFormSchema = z.object({
   email: z
@@ -44,9 +40,19 @@ const profileFormSchema = z.object({
   }),
   content: z.string().max(10000).min(4),
   can_share: z.boolean(),
+  user_id: z.string().nullable(),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
+
+type Id = { id: number };
+
+async function fetchUser() {
+  const res = await axios.get('/api/get-user');
+  console.log('id:', res.data.data);
+  // 🎉 parse against the schema
+  return profileFormSchema.parse({ id: res.data.data });
+}
 
 // This can come from your database or API.
 const defaultValues: Partial<ProfileFormValues> = {
@@ -55,23 +61,12 @@ const defaultValues: Partial<ProfileFormValues> = {
 
 export default function Page() {
   // TODO: redirect if no user detected
-  // FIXME: no user fetched
-
-  // const [user, setUser] = useState<any>();
-  // useEffect(() => {
-  //   const checkIsUser = async () => {
-  //     const res = await fetch('/api/get-user', { method: 'GET' });
-  //     const data = res.status;
-  //     setUser(data);
-  //     console.log(user);
-  //   };
-  //   checkIsUser();
-  // }, []);
 
   // console.log(user);
   // if (!user) {
   //   redirect('/login');
   // }
+
   const [url, setUrl] = useState<string | null>(null);
 
   const form = useForm<ProfileFormValues>({
@@ -81,6 +76,7 @@ export default function Page() {
   });
 
   async function onSubmit(data: ProfileFormValues) {
+    console.log(JSON.stringify(data));
     const res = await fetch('/api/create', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -100,95 +96,97 @@ export default function Page() {
     );
     toast.success('Copied to clipboard.');
   };
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='my-10 space-y-8'>
-        <FormField
-          control={form.control}
-          name='email'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Receiver&apos;s e-mail</FormLabel>
-              <FormControl>
-                <Input placeholder='shadcn' {...field} />
-              </FormControl>
-              <FormDescription>
-                The e-mail address that this template will be addressed to.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name='title'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Title of e-mail</FormLabel>
-              <FormControl>
-                <Input placeholder='Title' {...field} />
-              </FormControl>
-              <FormDescription>The title of the e-mail.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* <FormField
-          control={form.control}
-          name='can_share'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>
-                Would you allow us to proudly share the title of this e-mail on
-                our public showcase page?
-              </FormLabel>
-              <Select defaultValue={field.value}>
+
+  const { data } = useQuery({
+    queryKey: ['initial-users'],
+    queryFn: () => fetchUser(),
+    initialData: defaultValues,
+  });
+
+  if (data) {
+    return (
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className='my-10 space-y-8'
+        >
+          <FormField
+            name='user_id'
+            control={form.control}
+            render={({ field }) => (
+              <input type='hidden' {...field} value={data.user_id as any} />
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='email'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Receiver&apos;s e-mail</FormLabel>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select an option' />
-                  </SelectTrigger>
+                  <Input placeholder='shadcn' {...field} />
                 </FormControl>
-                <SelectContent>
-                  <SelectItem value='Yes'>Yes</SelectItem>
-                  <SelectItem value='No'>No</SelectItem>
-                </SelectContent>
-              </Select>
+                <FormDescription>
+                  The e-mail address that this template will be addressed to.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='title'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title of e-mail</FormLabel>
+                <FormControl>
+                  <Input placeholder='Title' {...field} />
+                </FormControl>
+                <FormDescription>The title of the e-mail.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
-        <FormField
-          control={form.control}
-          name='content'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Content</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder='The content of the template'
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                NOTE: You currently cannot come back to edit this form once
-                submitted. If you mess up, you can simply make a new one.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <FormField
+            control={form.control}
+            name='content'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Content</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder='The content of the template'
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  NOTE: You currently cannot come back to edit this form once
+                  submitted. If you mess up, you can simply make a new one.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Button type='submit'>Create template</Button>
-      </form>
-      {url ? (
-        <>
-          <Button onClick={handleCopy}>Copy to clipboard</Button>
-          <a target='_blank' href={`/template/${url}`}>
-            View your form here &rarr;
-          </a>
-        </>
-      ) : null}
-    </Form>
-  );
+          <Button
+            disabled={form.formState.isSubmitting}
+            className='disabled:opacity-80'
+            type='submit'
+          >
+            Create template
+          </Button>
+        </form>
+        {url ? (
+          <>
+            <Button onClick={handleCopy}>Copy to clipboard</Button>
+            <a target='_blank' href={`/template/${url}`}>
+              View your form here &rarr;
+            </a>
+          </>
+        ) : null}
+      </Form>
+    );
+  }
+  return <h1>We could not read your user id.</h1>;
 }

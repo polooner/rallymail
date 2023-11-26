@@ -18,7 +18,10 @@ export default function Login({
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `https://rallymail.vercel.app/auth/callback`,
+        emailRedirectTo:
+          process.env.NODE_ENV === 'production'
+            ? `https://rallymail.vercel.app/auth/callback`
+            : 'http://localhost:3000/auth/callback',
       },
     });
 
